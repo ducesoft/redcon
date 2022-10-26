@@ -113,6 +113,8 @@ type Conn interface {
 	PeekPipeline() []Command
 	// NetConn returns the base net.Conn connection
 	NetConn() net.Conn
+	// Flush flushes any writes to the network.
+	Flush() error
 }
 
 // NewServer returns a new Redcon server configured on "tcp" network net.
@@ -486,6 +488,9 @@ func (c *conn) PeekPipeline() []Command {
 func (c *conn) NetConn() net.Conn {
 	return c.conn
 }
+func (c *conn) Flush() error {
+	return c.wr.Flush()
+}
 
 // BaseWriter returns the underlying connection writer, if any
 func BaseWriter(c Conn) *Writer {
@@ -501,8 +506,6 @@ type DetachedConn interface {
 	Conn
 	// ReadCommand reads the next client command.
 	ReadCommand() (Command, error)
-	// Flush flushes any writes to the network.
-	Flush() error
 }
 
 // Detach removes the current connection from the server loop and returns
